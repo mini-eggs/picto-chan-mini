@@ -1,0 +1,136 @@
+<div id="list"> 
+  {{ range .List.Posts }}
+    {{ if .IsImage }}
+    <img style="display: none;" src="{{ .Source }}" />
+    {{ else }}
+    <video style="display: none;" controls loop data-src="{{ .Source }}"></video>
+    {{ end }}
+  {{ end }}
+</div>
+
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: black;
+  }
+  #list > img,
+  #list > video {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+</style>
+
+<script>
+var n={},t={},o=[],r=function(e){var n=e.which||e.keyCode;t[n]=!0,d(e,n)},i=function(e){var n=e.which||e.keyCode;t[n]=!1},u=function(){t={}},d=function(e,n){var r=Object.keys(t).filter(function(e){return t[e]});for(var i in o){var u=o[i],d=u[0],c=u[1],f=u[2],v=!0;for(var s in d)v=t[d[s]];v&&c===n&&r.length===d.length+1&&f(e)}};n.listen=function(e,n,t){var d=o.length;return o.push([e,n,t]),document.addEventListener("keydown",r),document.addEventListener("keyup",i),window.addEventListener("blur",u),function(){return o.splice(d,1)}};n.unlisten=function(){document.removeEventListener("keydown",r),document.removeEventListener("keyup",i),window.removeEventListener("blur",u)}
+window.keybinds=n;
+</script>
+
+<script>
+
+  class App {
+
+    constructor(container) {
+      this.container = container;
+      this.pos = 0;
+      this.vol = 1;
+      this.diff = 0.1;
+      this.enable(this.pos)
+    }
+
+    get nodes() {
+      var nodes = this.container.querySelectorAll("#list > *")
+      return [...nodes]
+    }
+
+    get total() {
+      return this.nodes.length
+    }
+
+    get active() {
+      return this.container.querySelector('.active')
+    }
+
+    enable(pos) {
+      var next = this.nodes[pos]
+      next.className = 'active'
+      next.style.display = 'initial'
+      if(next.tagName.toLowerCase() == "video") {
+        next.setAttribute('src', next.getAttribute('data-src'))
+        next.volume = this.vol;
+        next.play()
+      }
+    }
+
+    onBack() {
+      var next = this.pos - 1;
+      if(next < 0) 
+        next = this.total - 1
+      this.pos = next
+      setTimeout(this.onTick.bind(this))
+    }
+
+    onNext() {
+      var next = this.pos + 1;
+      if(next >= this.total) 
+        next = 0
+      this.pos = next
+      setTimeout(this.onTick.bind(this))
+    }
+
+    onTick() {
+      for(var item of this.nodes) {
+        item.className = ""
+        item.style.display = "none"
+        if(item.tagName.toLowerCase() == "video") {
+          item.pause()
+          item.setAttribute('src', '')
+        }
+      }
+      this.enable(this.pos)
+    }
+
+    togglePlayback() {
+      var item = this.nodes[this.pos]
+      if(item.tagName.toLowerCase() == "video") {
+        if(item.paused) 
+          item.play()
+        else
+          item.pause()
+      }
+    }
+
+    volumeDown() {
+      var item = this.nodes[this.pos]
+      if(item.tagName.toLowerCase() == "video") {
+        var next = Math.round((item.volume - this.diff) * 10) / 10;
+        this.vol = item.volume = next < 0 ? 0 : next
+      }
+    }
+
+    volumeUp() {
+      var item = this.nodes[this.pos]
+      if(item.tagName.toLowerCase() == "video") {
+        var next = Math.round((item.volume + this.diff) * 10) / 10;
+        this.vol = item.volume = next > 1 ? 1 : next
+      }
+    }
+
+  }
+
+  let instance = new App(document.getElementById('list'))
+  keybinds.listen([], 37, function() { instance.onBack()            }) // H
+  keybinds.listen([], 72, function() { instance.onBack()            })
+  keybinds.listen([], 39, function() { instance.onNext()            }) // L
+  keybinds.listen([], 76, function() { instance.onNext()            })
+  keybinds.listen([], 40, function() { instance.volumeDown()        }) // J
+  keybinds.listen([], 74, function() { instance.volumeDown()        })
+  keybinds.listen([], 75, function() { instance.volumeUp()          }) // K
+  keybinds.listen([], 38, function() { instance.volumeUp()          })
+  keybinds.listen([], 32, function() { instance.togglePlayback()    }) // SPACE
+
+</script>

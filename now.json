@@ -1,0 +1,16 @@
+{
+  "name": "chan",
+  "version": 2,
+  "builds": [
+    {
+      "src": "main.go",
+      "use": "@now/go",
+      "config": {
+        "includeFiles": ["templates/**"]
+      }
+    }
+  ],
+  "routes": [
+    { "src": "/(.*)", "dest": "main.go" }
+  ]
+}
