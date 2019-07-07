@@ -16,7 +16,7 @@
 | |  | || || |\  || | 
 |_|  |_|___|_| \_|___|
                       
-This is a utility to browser 4chan/4channel threads. It's used by replacing the
+This is a utility to browse 4chan/4channel threads. It's used by replacing the
 "boards.4channel.org" part of a thread's URL with "chan.evanjon.es" after
 replacing you'll be brought to a "slideshow" type display of the media within
 the thread.
