@@ -1,12 +1,15 @@
-<div id="list"> 
-  {{ range .List.Posts }}
-    {{ if .IsImage }}
-    <img style="display: none;" src="{{ .Source }}" />
-    {{ else }}
-    <video style="display: none;" controls loop data-src="{{ .Source }}"></video>
+<main>
+  <div>
+    {{ range .List.Posts }}
+      {{ if .IsImage }}
+      <img style="display: none;" src="{{ .Source }}" />
+      {{ else }}
+      <video style="display: none;" controls loop data-src="{{ .Source }}"></video>
+      {{ end }}
     {{ end }}
-  {{ end }}
-</div>
+  </div>
+  <a download></a>
+</main>
 
 <style>
   body {
@@ -32,12 +35,42 @@ window.keybinds=n;
 
 <script>
 
-  class App {
+  class Settings {
+    constructor(key, defaultMap) {
+      this.defaults = Object.assign({}, defaultMap)
+      this.key = key
+    }
 
-    constructor(container) {
-      this.container = container;
-      this.pos = 0;
-      this.vol = 1;
+    static get volume() { return 'volume' }
+    static get index() { return 'index' }
+
+    getAll() {
+      try {
+        let json = localStorage.getItem(this.key)
+        let vars = JSON.parse(json)
+        return Object.assign({}, this.defaults, vars)
+      } catch(_e) {
+        return Object.assign({}, this.defaults)
+      }
+    }
+
+    set(key, val) {
+      let next = Object.assign({}, this.getAll(), {[key]: val})
+      localStorage.setItem(this.key, JSON.stringify(next))
+    }
+
+    get(key) {
+      return this.getAll()[key]
+    }
+  }
+
+  class App {
+    constructor(settings, container, downloadLink) {
+      this.settings = settings
+      this.container = container
+      this.downloadLink = downloadLink 
+      this.pos = this.settings.get(Settings.index)
+      this.vol = this.settings.get(Settings.volume)
       this.diff = 0.1;
       this.enable(this.pos)
     }
@@ -57,6 +90,7 @@ window.keybinds=n;
 
     enable(pos) {
       var next = this.nodes[pos]
+      this.downloadLink.setAttribute('href', next.getAttribute('src'))
       next.className = 'active'
       next.style.display = 'initial'
       if(next.tagName.toLowerCase() == "video") {
@@ -71,6 +105,7 @@ window.keybinds=n;
       if(next < 0) 
         next = this.total - 1
       this.pos = next
+      this.settings.set(Settings.index, this.pos)
       setTimeout(this.onTick.bind(this))
     }
 
@@ -79,6 +114,7 @@ window.keybinds=n;
       if(next >= this.total) 
         next = 0
       this.pos = next
+      this.settings.set(Settings.index, this.pos)
       setTimeout(this.onTick.bind(this))
     }
 
@@ -109,6 +145,7 @@ window.keybinds=n;
       if(item.tagName.toLowerCase() == "video") {
         var next = Math.round((item.volume - this.diff) * 10) / 10;
         this.vol = item.volume = next < 0 ? 0 : next
+        this.settings.set(Settings.volume, this.vol)
       }
     }
 
@@ -117,12 +154,26 @@ window.keybinds=n;
       if(item.tagName.toLowerCase() == "video") {
         var next = Math.round((item.volume + this.diff) * 10) / 10;
         this.vol = item.volume = next > 1 ? 1 : next
+        this.settings.set(Settings.volume, this.vol)
       }
     }
 
+    download() {
+      this.downloadLink.click()
+    }
   }
 
-  let instance = new App(document.getElementById('list'))
+  let list = document.querySelector('main div')
+  let downloadLink = document.querySelector('main a')
+
+  let settings = new Settings(window.location.pathname, {
+    [Settings.volume]: 1,
+    [Settings.index]: 0
+  })
+
+  let instance = new App(settings, list, downloadLink)
+
+  /* events */
   keybinds.listen([], 37, function() { instance.onBack()            }) // H
   keybinds.listen([], 72, function() { instance.onBack()            })
   keybinds.listen([], 39, function() { instance.onNext()            }) // L
@@ -132,5 +183,6 @@ window.keybinds=n;
   keybinds.listen([], 75, function() { instance.volumeUp()          }) // K
   keybinds.listen([], 38, function() { instance.volumeUp()          })
   keybinds.listen([], 32, function() { instance.togglePlayback()    }) // SPACE
+  keybinds.listen([], 16, function() { instance.download()          }) // SHIFT
 
 </script>
