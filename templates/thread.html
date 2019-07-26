@@ -17,8 +17,8 @@
     padding: 0;
     background: black;
   }
-  #list > img,
-  #list > video {
+  main > div > img,
+  main > div > video {
     position: fixed;
     top: 0;
     left: 0;
@@ -76,7 +76,7 @@ window.keybinds=n;
     }
 
     get nodes() {
-      var nodes = this.container.querySelectorAll("#list > *")
+      var nodes = this.container.children
       return [...nodes]
     }
 
@@ -183,6 +183,10 @@ window.keybinds=n;
   keybinds.listen([], 75, function() { instance.volumeUp()          }) // K
   keybinds.listen([], 38, function() { instance.volumeUp()          })
   keybinds.listen([], 32, function() { instance.togglePlayback()    }) // SPACE
-  keybinds.listen([], 16, function() { instance.download()          }) // SHIFT
+  /* 
+  keybinds.listen([16], 40, function() { instance.download()        }) // SHIFT+DOWN
+  keybinds.listen([16], 37, function() { instance.jumpForward()     }) // SHIFT+LEFT
+  keybinds.listen([16], 39, function() { instance.jumpBack()        }) // SHIFT+RIGHT
+  */
 
 </script>

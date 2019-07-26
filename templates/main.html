@@ -20,6 +20,15 @@
 
 <p>This is a utility to browse 4chan/4channel threads. It's used by replacing the "boards.4channel.org" part of a thread's URL with "chan.evanjon.es" after replacing you'll be brought to a "slideshow" type display of the media within the thread.</p>
 
+<h2>Jump to thread</h2>
+
+<p>Enter a 4chan/4channels thread below. The full URL.</p>
+
+<form action='/'>
+  <input type='text' autofocus>
+  <input type='submit' value='Go'>
+</form>
+
 <h2>Keybinds</h2>
 
 <ul>
@@ -30,3 +39,23 @@
   <li>SHIFT - download</li>
   <li>SPACE - toggle playback (webm)</li>
 </ul>
+
+<script>
+  var input = document.querySelector('input')
+  var form = document.querySelector('form')
+
+  form.addEventListener('submit', handleFormSubmit)
+
+  function handleFormSubmit(event) {
+    event.preventDefault()
+    var parts = input.value.split('/')
+    if (parts.length < 6) {
+      alert('invalid url')
+      input.value = ''
+      return
+    }
+    var [_a, _b, _c, board, _d, thread] = parts
+    window.location.href = window.origin + '/' + board + '/thread/' + thread
+  }
+
+</script>
