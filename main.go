@@ -73,7 +73,7 @@ func serveThread(c *gin.Context) {
 		img := isImage(val.Ext)
 		vid := isVideo(val.Ext)
 		if img || vid {
-			source := fmt.Sprintf("http://is2.4chan.org/%s/%d%s", board, val.Tim, val.Ext)
+			source := fmt.Sprintf("https://is2.4chan.org/%s/%d%s", board, val.Tim, val.Ext)
 			media.Posts = append(media.Posts, data{Source: source, IsImage: img})
 		}
 	}
