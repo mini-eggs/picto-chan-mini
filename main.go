@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"encoding/json"
@@ -73,7 +73,10 @@ func serveThread(c *gin.Context) {
 		img := isImage(val.Ext)
 		vid := isVideo(val.Ext)
 		if img || vid {
-			source := fmt.Sprintf("https://is2.4chan.org/%s/%d%s", board, val.Tim, val.Ext)
+			// This `http` rather than `https` may seem weird but it is important.
+			// 4chan/4channels serves `https` content *MUCH* slower than http content.
+			// LEAVE AS `http`!
+			source := fmt.Sprintf("http://is2.4chan.org/%s/%d%s", board, val.Tim, val.Ext)
 			media.Posts = append(media.Posts, data{Source: source, IsImage: img})
 		}
 	}
